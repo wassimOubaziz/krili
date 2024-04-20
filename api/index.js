@@ -39,7 +39,7 @@ app.use(express.json());
 // CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: ["*", process.env.CLIENT_URL], // Allow requests from any origin
     credentials: true,
   })
 );

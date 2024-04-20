@@ -25,6 +25,10 @@ const PlacesFormPage = () => {
     checkOut: '',
     maxGuests: 10,
     price: 500,
+    category: '',
+    rental: false,
+    selling: false,
+    religion: '',
   });
 
   const {
@@ -37,6 +41,10 @@ const PlacesFormPage = () => {
     checkOut,
     maxGuests,
     price,
+    category,
+    rental,
+    selling,
+    religion,
   } = formData;
 
   const isValidPlaceData = () => {
@@ -52,11 +60,11 @@ const PlacesFormPage = () => {
     } else if (description.trim() === '') {
       toast.error("Description can't be empty!");
       return false;
-    } else if (maxGuests < 1) {
-      toast.error('At least one guests is required!');
+    } else if (category === '') {
+      toast.error('Please select a category!');
       return false;
-    } else if (maxGuests > 10) {
-      toast.error("Max. guests can't be greater than 10");
+    } else if (category !== 'trips' && !rental && !selling) {
+      toast.error('Please select rental or selling option!');
       return false;
     }
 
@@ -64,7 +72,7 @@ const PlacesFormPage = () => {
   };
 
   const handleFormData = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value, type, checked } = e.target;
     // If the input is not a checkbox, update 'formData' directly
     if (type !== 'checkbox') {
       setFormData({ ...formData, [name]: value });
@@ -83,6 +91,24 @@ const PlacesFormPage = () => {
         updatedPerks = [...currentPerks, name];
       }
       setFormData({ ...formData, perks: updatedPerks });
+    }
+  };
+
+  const handleRentalCheckbox = (e) => {
+    const { checked } = e.target;
+    if (checked) {
+      setFormData({ ...formData, rental: true, selling: false });
+    } else {
+      setFormData({ ...formData, rental: false });
+    }
+  };
+
+  const handleSellingCheckbox = (e) => {
+    const { checked } = e.target;
+    if (checked) {
+      setFormData({ ...formData, selling: true, rental: false });
+    } else {
+      setFormData({ ...formData, selling: false });
     }
   };
 
@@ -123,7 +149,6 @@ const PlacesFormPage = () => {
     e.preventDefault();
 
     const formDataIsValid = isValidPlaceData();
-    // console.log(isValidPlaceData());
     const placeData = { ...formData, addedPhotos };
 
     // Make API call only if formData is valid
@@ -159,77 +184,163 @@ const PlacesFormPage = () => {
       <form onSubmit={savePlace}>
         {preInput(
           'Title',
-          'title for your place. Should be short and catchy as in advertisement',
+          'Title for your place. Should be short and catchy as in advertisement',
         )}
         <input
           type="text"
           name="title"
           value={title}
           onChange={handleFormData}
-          placeholder="title, for example: My lovely apt"
+          placeholder="Title, for example: My lovely apt"
         />
 
-        {preInput('Address', 'address to this place')}
+        {preInput('Address', 'Address to this place')}
         <input
           type="text"
           name="address"
           value={address}
           onChange={handleFormData}
-          placeholder="address"
+          placeholder="Address"
         />
 
-        {preInput('Photos', 'more = better')}
+        {preInput('Photos', 'More = Better')}
 
         <PhotosUploader
           addedPhotos={addedPhotos}
           setAddedPhotos={setAddedPhotos}
         />
 
-        {preInput('Description', 'discription of the place')}
+        {preInput('Description', 'Description of the place')}
         <textarea
           value={description}
           name="description"
           onChange={handleFormData}
         />
 
-        {preInput('Perks', ' select all the perks of your place')}
+        {preInput('Perks', 'Select all the perks of your place')}
         <Perks selected={perks} handleFormData={handleFormData} />
 
-        {preInput('Extra info', 'house rules, etc ')}
+        {preInput('Extra Info', 'House rules, etc.')}
         <textarea
           value={extraInfo}
           name="extraInfo"
           onChange={handleFormData}
         />
 
-        {preInput(
-          'Number of guests & Price',
-          // 'add check in and out times, remember to have some time window forcleaning the room between guests. '
-          'Specify the maximum number of guests so that the client stays within the limit.',
-        )}
-        <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-1">
+          <div className="mb-4">
+            <label
+              htmlFor="category"
+              className="mb-1 mt-2 block text-sm font-medium text-gray-700"
+            >
+              Category
+            </label>
+            <select
+              id="category"
+              name="category"
+              value={category}
+              onChange={handleFormData}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring focus:ring-primary focus:ring-opacity-50"
+            >
+              <option value="">Select Category</option>
+              <option value="cars">Cars</option>
+              <option value="bicycles">Bicycles</option>
+              <option value="trips">Trips</option>
+              <option value="houses">Houses</option>
+            </select>
+          </div>
           <div>
-            <h3 className="mt-2 -mb-1">Max no. of guests</h3>
+            <div className="mb-4">
+              <label className="mb-1 mt-2 block text-sm font-medium text-gray-700">
+                Renting
+              </label>
+              <div>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="rental"
+                    checked={rental}
+                    onChange={handleRentalCheckbox}
+                    className="form-checkbox h-5 w-5 text-primary focus:ring-primary"
+                  />
+                  <span className="ml-2 text-gray-700">Renting</span>
+                </label>
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="mb-1 mt-2 block text-sm font-medium text-gray-700">
+                Selling
+              </label>
+              <div>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="selling"
+                    checked={selling}
+                    onChange={handleSellingCheckbox}
+                    className="form-checkbox h-5 w-5 text-primary focus:ring-primary"
+                  />
+                  <span className="ml-2 text-gray-700">Selling</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="religion"
+              className="mb-1 mt-2 block text-sm font-medium text-gray-700"
+            >
+              Religion
+            </label>
+            <select
+              id="religion"
+              name="religion"
+              value={religion}
+              onChange={handleFormData}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring focus:ring-primary focus:ring-opacity-50"
+            >
+              <option value="">Select Religion</option>
+              <option value="islamic">Islamic</option>
+              <option value="others">Others</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="maxGuests"
+              className="mb-1 mt-2 block text-sm font-medium text-gray-700"
+            >
+              Max no. of guests
+            </label>
             <input
-              type="text"
+              id="maxGuests"
+              type="number"
               name="maxGuests"
               value={maxGuests}
               onChange={handleFormData}
               placeholder="1"
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring focus:ring-primary focus:ring-opacity-50"
             />
           </div>
-          <div>
-            <h3 className="mt-2 -mb-1">Price per night</h3>
+          <div className="mb-4">
+            <label
+              htmlFor="price"
+              className="mb-1 mt-2 block text-sm font-medium text-gray-700"
+            >
+              Price per night
+            </label>
             <input
+              id="price"
               type="number"
               name="price"
               value={price}
               onChange={handleFormData}
               placeholder="1"
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring focus:ring-primary focus:ring-opacity-50"
             />
           </div>
         </div>
-        <button className="mx-auto my-4 flex rounded-full bg-primary py-3 px-20 text-xl font-semibold text-white">
+
+        <button className="mx-auto my-4 flex rounded-full bg-primary px-20 py-3 text-xl font-semibold text-white">
           Save
         </button>
       </form>
