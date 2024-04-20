@@ -9,7 +9,7 @@ This project is a full-stack web application developed as a clone of Airbnb usin
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/rahul4019/airbnb-clone.git
+   git clone https://github.com/wassimOubaziz/krili.git
 
    ```
 
@@ -20,20 +20,28 @@ This project is a full-stack web application developed as a clone of Airbnb usin
    ```
    yarn install
    ```
+   or
+   ```
+   npm install
+   ```
 
    Similary navigate to api folder and install backend dependencies
 
    ```
    yarn install
    ```
+   or
+   ```
+   npm install
+   ```
 
-3. **ENV variables:**
+4. **ENV variables:**
 
    - create .env file in the client folder and add these variables
 
      #### VITE_BASE_URL= http://localhost:4000
 
-     #### VITE_GOOGLE_CLIENT_ID= your google client id
+     #### VITE_GOOGLE_CLIENT_ID= your google client id ([watch this vedieo to see how you can do that](https://www.youtube.com/watch?v=HtJKUQXmtok&ab_channel=CooperCodes))
 
    - create .env file in the api folder and add these variables
 
@@ -54,17 +62,27 @@ This project is a full-stack web application developed as a clone of Airbnb usin
      #### CLOUDINARY_API_KEY= your cloudinary key
 
      #### CLOUDINARY_API_SECRET= your cloudinary api secret
-
+     
      #### CLIENT_URL= http://localhost:5173
 
-4. **Run project:**
+     you can watch this youtube video to see how to setup ur cloudinary [here](https://www.youtube.com/watch?v=1SIp9VL5TMo&ab_channel=Cloudinary)
+
+5. **Run project:**
    - Open terminal, navigate to client directory and run below command to start frontend
    ```
        yarn run dev
    ```
+   or
+   ```
+       npm run dev
+   ```
    - Open another terminal, navigate to api directory and run this command to start backend server
    ```
        yarn start
+   ```
+   or
+   ```
+       npm run dev
    ```
 
 ## Features
