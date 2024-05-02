@@ -1,5 +1,6 @@
 const Place = require("../models/Place");
 const cloudinary = require("cloudinary").v2;
+const Comment = require("../models/Comment");
 
 // Adds a place in the DB
 exports.addPlace = async (req, res) => {
@@ -84,8 +85,6 @@ exports.updatePlace = async (req, res) => {
       religion,
     } = req.body;
 
-    console.log(req.body);
-
     const place = await Place.findById(id);
 
     if (!place) {
@@ -150,6 +149,85 @@ exports.deletePlace = async (req, res) => {
   }
 };
 
+// Adds a comment to a place
+exports.addComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { comment } = req.body;
+
+    const place = await Place.findById(id).populate("comments");
+
+    if (!place) {
+      return res.status(400).json({
+        message: "Place not found",
+      });
+    }
+
+    const newComment = await Comment.create({
+      user: req.user.id,
+      place: place.id,
+      comment,
+    });
+
+    place.comments.push(newComment);
+    await place.save();
+
+    res.status(200).json({
+      message: "Comment added successfully",
+      comment: newComment,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+// Deletes a comment from a place
+exports.deleteComment = async (req, res) => {
+  try {
+    const { id, commentId } = req.params;
+
+    const place = await Place.findById(id).populate("comments");
+
+    if (!place) {
+      return res.status(400).json({
+        message: "Place not found",
+      });
+    }
+
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return res.status(400).json({
+        message: "Comment not found",
+      });
+    }
+
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Unauthorized",
+      });
+    }
+
+    await Comment.findByIdAndDelete(commentId);
+
+    place.comments = place.comments.filter((c) => c.id !== commentId);
+
+    await place.save();
+
+    res.status(200).json({
+      message: "Comment deleted successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
 // Returns all the places in DB
 exports.getPlaces = async (req, res) => {
   try {
@@ -168,12 +246,13 @@ exports.getPlaces = async (req, res) => {
 exports.singlePlace = async (req, res) => {
   try {
     const { id } = req.params;
-    const place = await Place.findById(id);
-    if (!place) {
-      return res.status(400).json({
-        message: "Place not found",
-      });
-    }
+    const place = await Place.findById(id).populate({
+      path: "comments",
+      populate: {
+        path: "user",
+        model: "User",
+      },
+    });
     res.status(200).json({
       place,
     });
@@ -200,6 +279,20 @@ exports.searchPlaces = async (req, res) => {
     console.log(err);
     res.status(500).json({
       message: "Internal serever error 1",
+    });
+  }
+};
+
+// Returns the current user
+
+exports.currentUser = async (req, res) => {
+  try {
+    res.status(200).json({
+      id: req.user._id,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Internal server error",
     });
   }
 };

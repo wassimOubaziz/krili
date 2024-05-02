@@ -48,6 +48,12 @@ const placeSchema = new mongoose.Schema({
     type: String,
     enum: ["islamic", "others"],
   },
+  comments: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Comment",
+    },
+  ],
 });
 
 const Place = mongoose.model("Place", placeSchema);
